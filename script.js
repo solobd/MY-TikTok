@@ -84,11 +84,12 @@ downloadButton.addEventListener("click", async () => {
   }
 
   const hdplayUrl = videoDownloadUrl;
+  const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(hdplayUrl);
   downloadButton.textContent = "Downloading... Please wait";
   downloadButton.disabled = true;
 
   try {
-    const response = await fetch(hdplayUrl);
+    const response = await fetch(proxyUrl);
     if (!response.ok) {
       throw new Error(`Video download failed (${response.status}).`);
     }
