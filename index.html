@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MY TikTok — Admin Dashboard</title>
+    <title>All Downloader - Admin Dashboard</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -233,8 +233,8 @@
                             </div>
                         </div>
                         <div class="leading-tight">
-                            <h1 class="font-display text-lg font-extrabold tracking-tight">MY TikTok</h1>
-                            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Workspace</p>
+                            <h1 class="font-display text-lg font-extrabold tracking-tight">All Downloader Workspace</h1>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Admin Console</p>
                         </div>
                     </div>
 
@@ -300,27 +300,72 @@
                         </div>
                     </header>
 
-                    <form id="config-form" class="relative space-y-5">
-                        <div>
-                            <label for="api_key" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">API Key</label>
-                            <input type="text" id="api_key" placeholder="Enter RapidAPI Key" required
-                                autocomplete="off" spellcheck="false"
-                                class="field w-full rounded-2xl border border-line bg-white/70 px-4 py-3.5 text-sm font-medium text-ink">
-                        </div>
+                    <form id="config-form" class="relative space-y-6">
+                        <section class="rounded-2xl border border-violet-100 bg-violet-50/50 p-4 sm:p-5">
+                            <div class="mb-5 flex items-center gap-3">
+                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-sm font-extrabold text-white shadow-md shadow-violet-500/20">T</span>
+                                <div>
+                                    <h3 class="font-display text-base font-extrabold">TikTok API Settings</h3>
+                                    <p class="text-xs text-muted">Purple platform connection</p>
+                                </div>
+                            </div>
 
-                        <div>
-                            <label for="api_host" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">API Host</label>
-                            <input type="text" id="api_host" placeholder="e.g. tiktok-download-video1.p.rapidapi.com" required
-                                autocomplete="off" spellcheck="false"
-                                class="field w-full rounded-2xl border border-line bg-white/70 px-4 py-3.5 text-sm font-medium text-ink">
-                        </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="api_key" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">API Key</label>
+                                    <input type="text" id="api_key" placeholder="Enter TikTok RapidAPI key" required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-violet-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
 
-                        <div>
-                            <label for="endpoint_url" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">Endpoint URL</label>
-                            <input type="url" id="endpoint_url" placeholder="https://..." required
-                                autocomplete="off" spellcheck="false"
-                                class="field w-full rounded-2xl border border-line bg-white/70 px-4 py-3.5 text-sm font-medium text-ink">
-                        </div>
+                                <div>
+                                    <label for="api_host" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">API Host</label>
+                                    <input type="text" id="api_host" placeholder="tiktok-api.p.rapidapi.com" required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-violet-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+
+                                <div>
+                                    <label for="endpoint_url" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">Endpoint URL</label>
+                                    <input type="url" id="endpoint_url" placeholder="https://..." required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-violet-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-2xl border border-blue-100 bg-blue-50/50 p-4 sm:p-5">
+                            <div class="mb-5 flex items-center gap-3">
+                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 text-sm font-extrabold text-white shadow-md shadow-blue-500/20">F</span>
+                                <div>
+                                    <h3 class="font-display text-base font-extrabold">Facebook API Settings</h3>
+                                    <p class="text-xs text-muted">Blue platform connection</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="fb_api_key" class="mb-2 block text-xs font-bold uppercase tracking-wider text-blue-700/70">API Key</label>
+                                    <input type="text" id="fb_api_key" placeholder="Enter Facebook RapidAPI key" required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-blue-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+
+                                <div>
+                                    <label for="fb_api_host" class="mb-2 block text-xs font-bold uppercase tracking-wider text-blue-700/70">API Host</label>
+                                    <input type="text" id="fb_api_host" placeholder="facebook-api.p.rapidapi.com" required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-blue-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+
+                                <div>
+                                    <label for="fb_endpoint_url" class="mb-2 block text-xs font-bold uppercase tracking-wider text-blue-700/70">Endpoint URL</label>
+                                    <input type="url" id="fb_endpoint_url" placeholder="https://..." required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-blue-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+                            </div>
+                        </section>
 
                         <div class="flex flex-col-reverse items-stretch gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
                             <p id="config-status" class="text-sm font-semibold text-muted"></p>
@@ -329,7 +374,7 @@
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                Save Settings
+                                Save All Settings
                             </button>
                         </div>
                     </form>
@@ -409,18 +454,38 @@
                             </div>
                         </div>
 
-                        <div class="flex items-end gap-3 sm:text-right">
-                            <div class="sm:text-right">
-                                <p id="usage-percentage" class="bg-gradient-to-br from-primary to-fuchsia-500 bg-clip-text font-display text-4xl font-extrabold leading-none tracking-tight text-transparent">0%</p>
-                                <p id="usage-text" class="mt-1.5 text-sm font-semibold text-muted">Used: 0 / 200</p>
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="relative mt-8 h-3 w-full overflow-hidden rounded-full bg-violet-100/80 ring-1 ring-inset ring-violet-200/60"
-                        role="progressbar" aria-label="Monthly API requests used" aria-valuemin="0" aria-valuemax="200" aria-valuenow="0">
-                        <div id="usage-progress"
-                            class="relative h-full w-0 rounded-full bg-gradient-to-r from-primary via-[#8B5CF6] to-fuchsia-500 shadow-[0_0_18px_rgba(101,0,245,0.55)] transition-all duration-700 ease-out"></div>
+                    <div class="relative mt-8 grid gap-5 md:grid-cols-2">
+                        <article class="rounded-2xl border border-white/80 bg-white/60 p-5 shadow-sm backdrop-blur">
+                            <div class="flex items-end justify-between gap-4">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-primary">TikTok</p>
+                                    <p id="tiktok-usage-text" class="mt-1.5 text-sm font-semibold text-muted">Used: 0 / 200</p>
+                                </div>
+                                <p id="tiktok-usage-percentage" class="bg-gradient-to-br from-primary to-fuchsia-500 bg-clip-text font-display text-3xl font-extrabold leading-none tracking-tight text-transparent">0%</p>
+                            </div>
+                            <div class="mt-5 h-3 w-full overflow-hidden rounded-full bg-violet-100/80 ring-1 ring-inset ring-violet-200/60"
+                                role="progressbar" aria-label="TikTok monthly API requests used" aria-valuemin="0" aria-valuemax="200" aria-valuenow="0">
+                                <div id="tiktok-usage-progress"
+                                    class="relative h-full w-0 rounded-full bg-gradient-to-r from-primary via-[#8B5CF6] to-fuchsia-500 shadow-[0_0_18px_rgba(101,0,245,0.55)] transition-all duration-700 ease-out"></div>
+                            </div>
+                        </article>
+
+                        <article class="rounded-2xl border border-white/80 bg-white/60 p-5 shadow-sm backdrop-blur">
+                            <div class="flex items-end justify-between gap-4">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Facebook</p>
+                                    <p id="facebook-usage-text" class="mt-1.5 text-sm font-semibold text-muted">Used: 0 / 500</p>
+                                </div>
+                                <p id="facebook-usage-percentage" class="bg-gradient-to-br from-blue-600 to-cyan-400 bg-clip-text font-display text-3xl font-extrabold leading-none tracking-tight text-transparent">0%</p>
+                            </div>
+                            <div class="mt-5 h-3 w-full overflow-hidden rounded-full bg-blue-100/80 ring-1 ring-inset ring-blue-200/60"
+                                role="progressbar" aria-label="Facebook monthly API requests used" aria-valuemin="0" aria-valuemax="500" aria-valuenow="0">
+                                <div id="facebook-usage-progress"
+                                    class="relative h-full w-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 shadow-[0_0_18px_rgba(37,99,235,0.45)] transition-all duration-700 ease-out"></div>
+                            </div>
+                        </article>
                     </div>
 
                     <div class="relative mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -433,7 +498,7 @@
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
-                            Reset Counter to 0
+                            Reset Both Counters
                         </button>
                     </div>
                 </section>
@@ -442,7 +507,7 @@
 
             <!-- Footer -->
             <footer class="mt-12 border-t border-line/70 pt-6 text-center">
-                <p class="text-xs font-medium text-muted/80">© MY TikTok Workspace · Admin Console</p>
+                <p class="text-xs font-medium text-muted/80">All Downloader Workspace - Admin Console</p>
             </footer>
         </main>
     </div>

@@ -1,4 +1,4 @@
-// MY TikTok admin panel - Firebase Web SDK v10 (modular), no build step.
+// All Downloader admin panel - Firebase Web SDK v10 (modular), no build step.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getDatabase, ref, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
@@ -21,10 +21,14 @@ const firebaseConfig = {
 // Real protection comes from Realtime Database security rules.
 const ADMIN_PIN = "2026";
 
-const CONFIG_PATH = "app_config";   // api_key, api_host, endpoint_url
+const CONFIG_PATH = "app_config";   // TikTok and Facebook API credentials
 const UPDATE_PATH = "app_update";   // latest_version_code, apk_download_url, update_message
-const USAGE_PATH = "app_usage";     // current_count, max_limit
-const DEFAULT_MAX_LIMIT = 200;
+const USAGE_PATH = "app_usage";     // {tiktok,facebook}/{current_count,max_limit}
+const DEFAULT_USAGE_LIMITS = {
+    tiktok: 200,
+    facebook: 500,
+};
+const USAGE_PLATFORMS = Object.keys(DEFAULT_USAGE_LIMITS);
 
 const $ = (id) => document.getElementById(id);
 
@@ -42,9 +46,12 @@ const els = {
     updateForm: $("update-form"),
     updateSave: $("update-save"),
     updateStatus: $("update-status"),
-    usageProgress: $("usage-progress"),
-    usagePercentage: $("usage-percentage"),
-    usageText: $("usage-text"),
+    tiktokUsageProgress: $("tiktok-usage-progress"),
+    tiktokUsagePercentage: $("tiktok-usage-percentage"),
+    tiktokUsageText: $("tiktok-usage-text"),
+    facebookUsageProgress: $("facebook-usage-progress"),
+    facebookUsagePercentage: $("facebook-usage-percentage"),
+    facebookUsageText: $("facebook-usage-text"),
     usageStatus: $("usage-status"),
     resetUsageButton: $("reset-usage-button"),
     toast: $("admin-toast"),
@@ -107,11 +114,15 @@ function setStatus(element, message, tone = "muted") {
 }
 
 function setBusy(button, busy, busyLabel) {
-    if (!button.dataset.idleLabel) {
-        button.dataset.idleLabel = button.textContent;
+    if (!button.dataset.idleHtml) {
+        button.dataset.idleHtml = button.innerHTML;
     }
     button.disabled = busy;
-    button.textContent = busy ? busyLabel : button.dataset.idleLabel;
+    if (busy) {
+        button.textContent = busyLabel;
+    } else {
+        button.innerHTML = button.dataset.idleHtml;
+    }
 }
 
 function showToast(message, tone = "success") {
@@ -170,15 +181,19 @@ els.lockButton.addEventListener("click", () => {
 
 /* ------------------------- Section 3: API usage -------------------------- */
 
-function renderUsage(currentCount, maxLimit) {
+function renderUsage(platform, currentCount, maxLimit) {
+    const prefix = platform === "tiktok" ? "tiktokUsage" : "facebookUsage";
+    const progressBar = els[`${prefix}Progress`];
+    const percentageText = els[`${prefix}Percentage`];
+    const usageText = els[`${prefix}Text`];
     const percentage = maxLimit > 0
         ? Math.min(100, Math.max(0, Math.round((currentCount / maxLimit) * 100)))
         : 0;
-    els.usageProgress.style.width = `${percentage}%`;
-    els.usagePercentage.textContent = `${percentage}%`;
-    els.usageText.textContent = `Used: ${currentCount} / ${maxLimit}`;
+    progressBar.style.width = `${percentage}%`;
+    percentageText.textContent = `${percentage}%`;
+    usageText.textContent = `Used: ${currentCount} / ${maxLimit}`;
 
-    const progress = els.usageProgress.parentElement;
+    const progress = progressBar.parentElement;
     progress.setAttribute("aria-valuemax", String(maxLimit));
     progress.setAttribute("aria-valuenow", String(Math.min(currentCount, maxLimit)));
 }
@@ -192,26 +207,36 @@ function startUsageTracker() {
 
     stopUsageListener = onValue(usageRef, (snapshot) => {
         const data = snapshot.val() || {};
-        const rawCurrent = Number(data.current_count);
-        const rawLimit = Number(data.max_limit);
-        const currentCount = Number.isFinite(rawCurrent) && rawCurrent >= 0
-            ? Math.floor(rawCurrent)
-            : 0;
-        const maxLimit = Number.isFinite(rawLimit) && rawLimit > 0
-            ? Math.floor(rawLimit)
-            : DEFAULT_MAX_LIMIT;
-
-        renderUsage(currentCount, maxLimit);
-        setStatus(els.usageStatus, "Live usage from Firebase.", "success");
-
-        // Create the required app_usage structure if either key is missing or invalid.
         const defaults = {};
-        if (data.current_count == null || !Number.isFinite(rawCurrent) || rawCurrent < 0) {
-            defaults.current_count = 0;
+        USAGE_PLATFORMS.forEach((platform) => {
+            const platformData = data[platform] || {};
+            const rawCurrent = Number(platformData.current_count);
+            const rawLimit = Number(platformData.max_limit);
+            const currentCount = Number.isFinite(rawCurrent) && rawCurrent >= 0
+                ? Math.floor(rawCurrent)
+                : 0;
+            const maxLimit = Number.isFinite(rawLimit) && rawLimit > 0
+                ? Math.floor(rawLimit)
+                : DEFAULT_USAGE_LIMITS[platform];
+
+            renderUsage(platform, currentCount, maxLimit);
+            if (platformData.current_count == null || !Number.isFinite(rawCurrent) || rawCurrent < 0) {
+                defaults[`${platform}/current_count`] = 0;
+            }
+            if (platformData.max_limit == null || !Number.isFinite(rawLimit) || rawLimit <= 0) {
+                defaults[`${platform}/max_limit`] = DEFAULT_USAGE_LIMITS[platform];
+            }
+        });
+
+        // Remove keys from the previous flat schema after both platform nodes exist.
+        if (data.current_count != null) {
+            defaults.current_count = null;
         }
-        if (data.max_limit == null || !Number.isFinite(rawLimit) || rawLimit <= 0) {
-            defaults.max_limit = DEFAULT_MAX_LIMIT;
+        if (data.max_limit != null) {
+            defaults.max_limit = null;
         }
+
+        setStatus(els.usageStatus, "Live usage from Firebase.", "success");
         if (Object.keys(defaults).length > 0) {
             update(usageRef, defaults).catch((error) => {
                 setStatus(els.usageStatus, `Initialize failed: ${errorText(error)}`, "error");
@@ -224,11 +249,20 @@ function startUsageTracker() {
 }
 
 els.resetUsageButton.addEventListener("click", async () => {
+    if (!window.confirm("Reset both TikTok and Facebook usage counters to 0?")) {
+        return;
+    }
+
     setBusy(els.resetUsageButton, true, "Resetting...");
     try {
-        await update(ref(db, USAGE_PATH), { current_count: 0 });
-        showToast("API usage counter reset to 0.");
+        await update(ref(db, USAGE_PATH), {
+            "tiktok/current_count": 0,
+            "facebook/current_count": 0,
+        });
+        setStatus(els.usageStatus, "Both counters were reset.", "success");
+        showToast("TikTok and Facebook counters reset to 0.");
     } catch (error) {
+        setStatus(els.usageStatus, `Reset failed: ${errorText(error)}`, "error");
         showToast(`Reset failed: ${errorText(error)}`, "error");
     } finally {
         setBusy(els.resetUsageButton, false);
@@ -245,6 +279,9 @@ async function loadConfig() {
         $("api_key").value = data.api_key ?? "";
         $("api_host").value = data.api_host ?? "";
         $("endpoint_url").value = data.endpoint_url ?? "";
+        $("fb_api_key").value = data.fb_api_key ?? "";
+        $("fb_api_host").value = data.fb_api_host ?? "";
+        $("fb_endpoint_url").value = data.fb_endpoint_url ?? "";
         setStatus(els.configStatus, "Loaded from Firebase.", "success");
     } catch (error) {
         setStatus(els.configStatus, `Load failed: ${errorText(error)}`, "error");
@@ -256,13 +293,20 @@ els.configForm.addEventListener("submit", async (event) => {
     const apiKey = $("api_key").value.trim();
     const apiHost = $("api_host").value.trim();
     const endpointUrl = $("endpoint_url").value.trim();
+    const facebookApiKey = $("fb_api_key").value.trim();
+    const facebookApiHost = $("fb_api_host").value.trim();
+    const facebookEndpointUrl = $("fb_endpoint_url").value.trim();
 
-    if (!apiKey || !apiHost) {
-        setStatus(els.configStatus, "api_key and api_host are required.", "error");
+    if (!apiKey || !apiHost || !facebookApiKey || !facebookApiHost) {
+        setStatus(els.configStatus, "All API keys and hosts are required.", "error");
         return;
     }
     if (!isHttpsUrl(endpointUrl)) {
-        setStatus(els.configStatus, "endpoint_url must be a full https:// URL.", "error");
+        setStatus(els.configStatus, "TikTok endpoint_url must be a full https:// URL.", "error");
+        return;
+    }
+    if (!isHttpsUrl(facebookEndpointUrl)) {
+        setStatus(els.configStatus, "Facebook fb_endpoint_url must be a full https:// URL.", "error");
         return;
     }
 
@@ -272,8 +316,11 @@ els.configForm.addEventListener("submit", async (event) => {
             api_key: apiKey,
             api_host: apiHost,
             endpoint_url: endpointUrl,
+            fb_api_key: facebookApiKey,
+            fb_api_host: facebookApiHost,
+            fb_endpoint_url: facebookEndpointUrl,
         });
-        setStatus(els.configStatus, "Saved. Apps pick this up automatically.", "success");
+        setStatus(els.configStatus, "All platform settings saved.", "success");
     } catch (error) {
         setStatus(els.configStatus, `Save failed: ${errorText(error)}`, "error");
     } finally {
