@@ -39,12 +39,6 @@
                             '0%': { opacity: '0', transform: 'translateY(16px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' }
                         },
-                        shake: {
-                            '0%, 100%': { transform: 'translateX(0)' },
-                            '25%': { transform: 'translateX(-6px)' },
-                            '50%': { transform: 'translateX(6px)' },
-                            '75%': { transform: 'translateX(-6px)' }
-                        },
                         shimmer: {
                             '0%': { backgroundPosition: '-200% 0' },
                             '100%': { backgroundPosition: '200% 0' }
@@ -52,8 +46,7 @@
                     },
                     animation: {
                         blob: 'blob 18s ease-in-out infinite',
-                        fadeUp: 'fadeUp .6s cubic-bezier(.16,1,.3,1) both',
-                        shake: 'shake .4s ease-in-out'
+                        fadeUp: 'fadeUp .6s cubic-bezier(.16,1,.3,1) both'
                     }
                 }
             }
@@ -136,13 +129,6 @@
         .btn-danger:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 20px 40px -16px rgba(245, 34, 45, .9); }
         .btn-danger:active:not(:disabled) { transform: translateY(0) scale(.99); }
 
-        /* PIN input */
-        #pin-input { letter-spacing: .55em; text-indent: .55em; }
-        #pin-input::placeholder { letter-spacing: .35em; text-indent: .35em; color: #C3CBDA; }
-
-        /* Shake (kept for JS compatibility) */
-        .shake { animation: shake .4s ease-in-out; }
-
         /* Custom scrollbar */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -170,52 +156,8 @@
         <div class="grid-overlay absolute inset-0"></div>
     </div>
 
-    <!-- ================= PIN SCREEN ================= -->
-    <div id="pin-screen" class="flex min-h-screen items-center justify-center p-4 sm:p-6">
-        <div class="glass-card w-full max-w-md animate-fadeUp rounded-[32px] p-8 text-center sm:p-10">
-
-            <!-- Logo -->
-            <div class="relative mx-auto mb-7 h-20 w-20">
-                <div class="absolute inset-0 rounded-[26px] bg-gradient-to-br from-primary to-fuchsia-500 opacity-40 blur-xl"></div>
-                <div class="relative flex h-20 w-20 items-center justify-center rounded-[26px] bg-gradient-to-br from-primary via-[#7C3AED] to-fuchsia-500 shadow-lg ring-1 ring-white/40">
-                    <svg class="h-9 w-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.9" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                </div>
-            </div>
-
-            <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.28em] text-primary">Restricted Area</p>
-            <h1 class="font-display text-3xl font-extrabold tracking-tight">Admin Access</h1>
-            <p class="mx-auto mt-2 max-w-[16rem] text-sm leading-relaxed text-muted">
-                Enter your secure PIN to unlock the dashboard.
-            </p>
-
-            <form id="pin-form" class="mt-8 space-y-4">
-                <div class="relative">
-                    <input type="password" id="pin-input" placeholder="••••" required
-                        inputmode="numeric" autocomplete="current-password"
-                        class="field w-full rounded-2xl border border-line bg-white/70 px-4 py-5 text-center text-3xl font-bold tracking-[0.5em] text-ink placeholder:font-normal">
-                </div>
-
-                <p id="pin-error" class="hidden text-sm font-semibold text-rose-600"></p>
-
-                <button type="submit"
-                    class="btn-primary w-full rounded-2xl py-4 text-sm font-bold uppercase tracking-widest text-white">
-                    Unlock Dashboard
-                </button>
-            </form>
-
-            <div class="mt-7 flex items-center justify-center gap-2 text-[11px] font-medium text-muted/80">
-                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.6 4A9 9 0 1121.6 9"/>
-                </svg>
-                End-to-end encrypted session
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= DASHBOARD SCREEN (Hidden by default) ================= -->
-    <div id="dashboard" class="hidden min-h-screen flex-col">
+    <!-- ================= DASHBOARD SCREEN ================= -->
+    <div id="dashboard" class="flex min-h-screen flex-col">
 
         <!-- ---------- Top Navbar ---------- -->
         <nav class="sticky top-0 z-20 border-b border-white/60 bg-white/70 backdrop-blur-xl">
@@ -248,13 +190,6 @@
                             Live
                         </span>
 
-                        <button id="lock-button"
-                            class="group inline-flex items-center gap-2 rounded-xl border border-line bg-white/70 px-4 py-2.5 text-muted transition-all duration-200 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">
-                            <svg class="h-4 w-4 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                            </svg>
-                            <span class="hidden text-xs font-bold uppercase tracking-wider sm:block">Lock System</span>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -274,7 +209,7 @@
                     <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Session active
+                    Dashboard ready
                 </div>
             </div>
 
@@ -301,16 +236,21 @@
                     </header>
 
                     <form id="config-form" class="relative space-y-6">
-                        <section class="rounded-2xl border border-violet-100 bg-violet-50/50 p-4 sm:p-5">
-                            <div class="mb-5 flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-sm font-extrabold text-white shadow-md shadow-violet-500/20">T</span>
-                                <div>
-                                    <h3 class="font-display text-base font-extrabold">TikTok API Settings</h3>
-                                    <p class="text-xs text-muted">Purple platform connection</p>
-                                </div>
-                            </div>
+                        <section class="overflow-hidden rounded-2xl border border-violet-100 bg-violet-50/50">
+                            <button type="button" data-accordion-trigger data-accordion-target="tiktok-config-content"
+                                aria-expanded="false" aria-controls="tiktok-config-content"
+                                class="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-violet-100/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary sm:p-5">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-fuchsia-500 text-sm font-extrabold text-white shadow-md shadow-violet-500/20">T</span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-display text-base font-extrabold">TikTok API Settings</span>
+                                    <span class="block text-xs text-muted">Purple platform connection</span>
+                                </span>
+                                <svg data-accordion-icon class="h-5 w-5 shrink-0 text-primary transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
 
-                            <div class="space-y-4">
+                            <div id="tiktok-config-content" class="accordion-content hidden space-y-4 border-t border-violet-100 px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
                                 <div>
                                     <label for="api_key" class="mb-2 block text-xs font-bold uppercase tracking-wider text-muted">API Key</label>
                                     <input type="text" id="api_key" placeholder="Enter TikTok RapidAPI key" required
@@ -334,16 +274,21 @@
                             </div>
                         </section>
 
-                        <section class="rounded-2xl border border-blue-100 bg-blue-50/50 p-4 sm:p-5">
-                            <div class="mb-5 flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 text-sm font-extrabold text-white shadow-md shadow-blue-500/20">F</span>
-                                <div>
-                                    <h3 class="font-display text-base font-extrabold">Facebook API Settings</h3>
-                                    <p class="text-xs text-muted">Blue platform connection</p>
-                                </div>
-                            </div>
+                        <section class="overflow-hidden rounded-2xl border border-blue-100 bg-blue-50/50">
+                            <button type="button" data-accordion-trigger data-accordion-target="facebook-config-content"
+                                aria-expanded="false" aria-controls="facebook-config-content"
+                                class="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-blue-100/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 sm:p-5">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 text-sm font-extrabold text-white shadow-md shadow-blue-500/20">F</span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-display text-base font-extrabold">Facebook API Settings</span>
+                                    <span class="block text-xs text-muted">Blue platform connection</span>
+                                </span>
+                                <svg data-accordion-icon class="h-5 w-5 shrink-0 text-blue-600 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
 
-                            <div class="space-y-4">
+                            <div id="facebook-config-content" class="accordion-content hidden space-y-4 border-t border-blue-100 px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
                                 <div>
                                     <label for="fb_api_key" class="mb-2 block text-xs font-bold uppercase tracking-wider text-blue-700/70">API Key</label>
                                     <input type="text" id="fb_api_key" placeholder="Enter Facebook RapidAPI key" required
@@ -363,6 +308,44 @@
                                     <input type="url" id="fb_endpoint_url" placeholder="https://..." required
                                         autocomplete="off" spellcheck="false"
                                         class="field w-full rounded-2xl border border-blue-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="overflow-hidden rounded-2xl border border-pink-100 bg-pink-50/50">
+                            <button type="button" data-accordion-trigger data-accordion-target="instagram-config-content"
+                                aria-expanded="false" aria-controls="instagram-config-content"
+                                class="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-pink-100/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-pink-500 sm:p-5">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-fuchsia-600 via-pink-500 to-orange-400 text-sm font-extrabold text-white shadow-md shadow-pink-500/20">I</span>
+                                <span class="min-w-0 flex-1">
+                                    <span class="block font-display text-base font-extrabold">Instagram API Settings</span>
+                                    <span class="block text-xs text-muted">Instagram platform connection</span>
+                                </span>
+                                <svg data-accordion-icon class="h-5 w-5 shrink-0 text-pink-600 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <div id="instagram-config-content" class="accordion-content hidden space-y-4 border-t border-pink-100 px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
+                                <div>
+                                    <label for="instagram_api_key" class="mb-2 block text-xs font-bold uppercase tracking-wider text-pink-700/70">API Key</label>
+                                    <input type="text" id="instagram_api_key" placeholder="Enter Instagram RapidAPI key" required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-pink-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+
+                                <div>
+                                    <label for="instagram_api_host" class="mb-2 block text-xs font-bold uppercase tracking-wider text-pink-700/70">API Host</label>
+                                    <input type="text" id="instagram_api_host" placeholder="instagram-api.p.rapidapi.com" required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-pink-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
+                                </div>
+
+                                <div>
+                                    <label for="instagram_endpoint_url" class="mb-2 block text-xs font-bold uppercase tracking-wider text-pink-700/70">Endpoint URL</label>
+                                    <input type="url" id="instagram_endpoint_url" placeholder="https://..." required
+                                        autocomplete="off" spellcheck="false"
+                                        class="field w-full rounded-2xl border border-pink-100 bg-white/80 px-4 py-3.5 text-sm font-medium text-ink">
                                 </div>
                             </div>
                         </section>
@@ -450,13 +433,13 @@
                             </div>
                             <div>
                                 <h2 class="font-display text-xl font-extrabold tracking-tight">API Usage Tracker</h2>
-                                <p class="mt-0.5 text-sm text-muted">Monthly RapidAPI request allowance</p>
+                                <p class="mt-0.5 text-sm text-muted">Platform request allowances</p>
                             </div>
                         </div>
 
                     </div>
 
-                    <div class="relative mt-8 grid gap-5 md:grid-cols-2">
+                    <div class="relative mt-8 grid gap-5 md:grid-cols-3">
                         <article class="rounded-2xl border border-white/80 bg-white/60 p-5 shadow-sm backdrop-blur">
                             <div class="flex items-end justify-between gap-4">
                                 <div>
@@ -486,6 +469,21 @@
                                     class="relative h-full w-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 shadow-[0_0_18px_rgba(37,99,235,0.45)] transition-all duration-700 ease-out"></div>
                             </div>
                         </article>
+
+                        <article class="rounded-2xl border border-white/80 bg-white/60 p-5 shadow-sm backdrop-blur">
+                            <div class="flex items-end justify-between gap-4">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-[0.18em] text-pink-600">Instagram</p>
+                                    <p id="instagram-usage-text" class="mt-1.5 text-sm font-semibold text-muted">Used: 0 / 1000 hourly</p>
+                                </div>
+                                <p id="instagram-usage-percentage" class="bg-gradient-to-br from-fuchsia-600 via-pink-500 to-orange-400 bg-clip-text font-display text-3xl font-extrabold leading-none tracking-tight text-transparent">0%</p>
+                            </div>
+                            <div class="mt-5 h-3 w-full overflow-hidden rounded-full bg-pink-100/80 ring-1 ring-inset ring-pink-200/60"
+                                role="progressbar" aria-label="Instagram hourly API requests used" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="0">
+                                <div id="instagram-usage-progress"
+                                    class="relative h-full w-0 rounded-full bg-gradient-to-r from-fuchsia-600 via-pink-500 to-orange-400 shadow-[0_0_18px_rgba(219,39,119,0.45)] transition-all duration-700 ease-out"></div>
+                            </div>
+                        </article>
                     </div>
 
                     <div class="relative mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -498,7 +496,7 @@
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
-                            Reset Both Counters
+                            Reset All Counters
                         </button>
                     </div>
                 </section>

@@ -17,28 +17,19 @@ const firebaseConfig = {
     appId: "1:132827998805:android:57f83450a331aa940602dc"
 };
 
-// Simple gate only. It is NOT real security: anyone can read this file.
-// Real protection comes from Realtime Database security rules.
-const ADMIN_PIN = "2026";
-
-const CONFIG_PATH = "app_config";   // TikTok and Facebook API credentials
+const CONFIG_PATH = "app_config";   // Platform API credentials
 const UPDATE_PATH = "app_update";   // latest_version_code, apk_download_url, update_message
-const USAGE_PATH = "app_usage";     // {tiktok,facebook}/{current_count,max_limit}
+const USAGE_PATH = "app_usage";     // {platform}/{current_count,max_limit}
 const DEFAULT_USAGE_LIMITS = {
     tiktok: 200,
     facebook: 500,
+    instagram: 1000,
 };
 const USAGE_PLATFORMS = Object.keys(DEFAULT_USAGE_LIMITS);
 
 const $ = (id) => document.getElementById(id);
 
 const els = {
-    pinScreen: $("pin-screen"),
-    pinForm: $("pin-form"),
-    pinInput: $("pin-input"),
-    pinError: $("pin-error"),
-    dashboard: $("dashboard"),
-    lockButton: $("lock-button"),
     globalStatus: $("global-status"),
     configForm: $("config-form"),
     configSave: $("config-save"),
@@ -52,6 +43,9 @@ const els = {
     facebookUsageProgress: $("facebook-usage-progress"),
     facebookUsagePercentage: $("facebook-usage-percentage"),
     facebookUsageText: $("facebook-usage-text"),
+    instagramUsageProgress: $("instagram-usage-progress"),
+    instagramUsagePercentage: $("instagram-usage-percentage"),
+    instagramUsageText: $("instagram-usage-text"),
     usageStatus: $("usage-status"),
     resetUsageButton: $("reset-usage-button"),
     toast: $("admin-toast"),
@@ -67,7 +61,7 @@ function isPlaceholderConfig(config) {
 
 function initFirebase() {
     if (isPlaceholderConfig(firebaseConfig)) {
-        showPinMessage("Paste your Firebase web config into admin.js (firebaseConfig) first.");
+        showGlobal("Paste your Firebase web config into admin.js (firebaseConfig) first.", "error");
         return false;
     }
     try {
@@ -75,18 +69,9 @@ function initFirebase() {
         db = getDatabase(app);
         return true;
     } catch (error) {
-        showPinMessage(`Firebase init failed: ${error.message}`);
+        showGlobal(`Firebase init failed: ${error.message}`, "error");
         return false;
     }
-}
-
-// Setup errors are shown on the PIN card, because the dashboard is still hidden.
-function showPinMessage(message) {
-    els.pinError.textContent = message;
-    els.pinError.classList.remove("hidden");
-    els.pinForm.querySelectorAll("input, button").forEach((element) => {
-        element.disabled = true;
-    });
 }
 
 /* ----------------------------- UI helpers -------------------------------- */
@@ -149,40 +134,61 @@ function errorText(error) {
     return error && error.message ? error.message : "Unknown error.";
 }
 
-/* ----------------------------- PIN gate ---------------------------------- */
+/* ----------------------------- Accordions -------------------------------- */
 
-els.pinForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    if (els.pinInput.value.trim() === ADMIN_PIN) {
-        els.pinError.classList.add("hidden");
-        els.pinScreen.classList.add("hidden");
-        els.dashboard.classList.remove("hidden");
-        els.pinInput.value = "";
-        loadAll();
-        return;
-    }
-    els.pinError.classList.remove("hidden");
-    els.pinInput.value = "";
-    els.pinInput.classList.remove("shake");
-    void els.pinInput.offsetWidth; // restart animation
-    els.pinInput.classList.add("shake");
-});
+function setupAccordions() {
+    document.querySelectorAll("[data-accordion-trigger]").forEach((trigger) => {
+        trigger.addEventListener("click", () => {
+            const content = $(trigger.dataset.accordionTarget);
+            const icon = trigger.querySelector("[data-accordion-icon]");
+            if (!content || !icon) {
+                return;
+            }
 
-els.lockButton.addEventListener("click", () => {
-    if (stopUsageListener) {
-        stopUsageListener();
-        stopUsageListener = null;
-    }
-    els.dashboard.classList.add("hidden");
-    els.pinScreen.classList.remove("hidden");
-    els.globalStatus.classList.add("hidden");
-    els.pinInput.focus();
-});
+            const expanded = trigger.getAttribute("aria-expanded") === "true";
+            const shouldExpand = !expanded;
+            const duration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 250;
+            content.getAnimations().forEach((animation) => animation.cancel());
+            trigger.setAttribute("aria-expanded", String(shouldExpand));
+            icon.classList.toggle("rotate-180", shouldExpand);
+
+            if (shouldExpand) {
+                content.classList.remove("hidden");
+                content.animate([
+                    { opacity: 0, transform: "translateY(-8px)" },
+                    { opacity: 1, transform: "translateY(0)" },
+                ], {
+                    duration,
+                    easing: "cubic-bezier(.16, 1, .3, 1)",
+                });
+                return;
+            }
+
+            const animation = content.animate([
+                { opacity: 1, transform: "translateY(0)" },
+                { opacity: 0, transform: "translateY(-8px)" },
+            ], {
+                duration,
+                easing: "ease-in",
+            });
+            animation.addEventListener("finish", () => {
+                if (trigger.getAttribute("aria-expanded") === "false") {
+                    content.classList.add("hidden");
+                }
+            }, { once: true });
+        });
+    });
+}
 
 /* ------------------------- Section 3: API usage -------------------------- */
 
 function renderUsage(platform, currentCount, maxLimit) {
-    const prefix = platform === "tiktok" ? "tiktokUsage" : "facebookUsage";
+    const prefixes = {
+        tiktok: "tiktokUsage",
+        facebook: "facebookUsage",
+        instagram: "instagramUsage",
+    };
+    const prefix = prefixes[platform];
     const progressBar = els[`${prefix}Progress`];
     const percentageText = els[`${prefix}Percentage`];
     const usageText = els[`${prefix}Text`];
@@ -191,7 +197,8 @@ function renderUsage(platform, currentCount, maxLimit) {
         : 0;
     progressBar.style.width = `${percentage}%`;
     percentageText.textContent = `${percentage}%`;
-    usageText.textContent = `Used: ${currentCount} / ${maxLimit}`;
+    const period = platform === "instagram" ? " hourly" : "";
+    usageText.textContent = `Used: ${currentCount} / ${maxLimit}${period}`;
 
     const progress = progressBar.parentElement;
     progress.setAttribute("aria-valuemax", String(maxLimit));
@@ -212,12 +219,22 @@ function startUsageTracker() {
             const platformData = data[platform] || {};
             const rawCurrent = Number(platformData.current_count);
             const rawLimit = Number(platformData.max_limit);
-            const currentCount = Number.isFinite(rawCurrent) && rawCurrent >= 0
+            let currentCount = Number.isFinite(rawCurrent) && rawCurrent >= 0
                 ? Math.floor(rawCurrent)
                 : 0;
             const maxLimit = Number.isFinite(rawLimit) && rawLimit > 0
                 ? Math.floor(rawLimit)
                 : DEFAULT_USAGE_LIMITS[platform];
+
+            if (platform === "instagram") {
+                const currentHour = Math.floor(Date.now() / 3600000);
+                const storedHour = Number(platformData.window_hour);
+                if (!Number.isFinite(storedHour) || storedHour !== currentHour) {
+                    currentCount = 0;
+                    defaults[`${platform}/current_count`] = 0;
+                    defaults[`${platform}/window_hour`] = currentHour;
+                }
+            }
 
             renderUsage(platform, currentCount, maxLimit);
             if (platformData.current_count == null || !Number.isFinite(rawCurrent) || rawCurrent < 0) {
@@ -228,7 +245,7 @@ function startUsageTracker() {
             }
         });
 
-        // Remove keys from the previous flat schema after both platform nodes exist.
+        // Remove keys from the previous flat schema after platform nodes are initialized.
         if (data.current_count != null) {
             defaults.current_count = null;
         }
@@ -249,7 +266,7 @@ function startUsageTracker() {
 }
 
 els.resetUsageButton.addEventListener("click", async () => {
-    if (!window.confirm("Reset both TikTok and Facebook usage counters to 0?")) {
+    if (!window.confirm("Reset TikTok, Facebook, and Instagram usage counters to 0?")) {
         return;
     }
 
@@ -258,9 +275,11 @@ els.resetUsageButton.addEventListener("click", async () => {
         await update(ref(db, USAGE_PATH), {
             "tiktok/current_count": 0,
             "facebook/current_count": 0,
+            "instagram/current_count": 0,
+            "instagram/window_hour": Math.floor(Date.now() / 3600000),
         });
-        setStatus(els.usageStatus, "Both counters were reset.", "success");
-        showToast("TikTok and Facebook counters reset to 0.");
+        setStatus(els.usageStatus, "All counters were reset.", "success");
+        showToast("All platform counters reset to 0.");
     } catch (error) {
         setStatus(els.usageStatus, `Reset failed: ${errorText(error)}`, "error");
         showToast(`Reset failed: ${errorText(error)}`, "error");
@@ -282,6 +301,9 @@ async function loadConfig() {
         $("fb_api_key").value = data.fb_api_key ?? "";
         $("fb_api_host").value = data.fb_api_host ?? "";
         $("fb_endpoint_url").value = data.fb_endpoint_url ?? "";
+        $("instagram_api_key").value = data.instagram_api_key ?? "";
+        $("instagram_api_host").value = data.instagram_api_host ?? "";
+        $("instagram_endpoint_url").value = data.instagram_endpoint_url ?? "";
         setStatus(els.configStatus, "Loaded from Firebase.", "success");
     } catch (error) {
         setStatus(els.configStatus, `Load failed: ${errorText(error)}`, "error");
@@ -296,8 +318,12 @@ els.configForm.addEventListener("submit", async (event) => {
     const facebookApiKey = $("fb_api_key").value.trim();
     const facebookApiHost = $("fb_api_host").value.trim();
     const facebookEndpointUrl = $("fb_endpoint_url").value.trim();
+    const instagramApiKey = $("instagram_api_key").value.trim();
+    const instagramApiHost = $("instagram_api_host").value.trim();
+    const instagramEndpointUrl = $("instagram_endpoint_url").value.trim();
 
-    if (!apiKey || !apiHost || !facebookApiKey || !facebookApiHost) {
+    if (!apiKey || !apiHost || !facebookApiKey || !facebookApiHost
+            || !instagramApiKey || !instagramApiHost) {
         setStatus(els.configStatus, "All API keys and hosts are required.", "error");
         return;
     }
@@ -307,6 +333,10 @@ els.configForm.addEventListener("submit", async (event) => {
     }
     if (!isHttpsUrl(facebookEndpointUrl)) {
         setStatus(els.configStatus, "Facebook fb_endpoint_url must be a full https:// URL.", "error");
+        return;
+    }
+    if (!isHttpsUrl(instagramEndpointUrl)) {
+        setStatus(els.configStatus, "Instagram instagram_endpoint_url must be a full https:// URL.", "error");
         return;
     }
 
@@ -319,6 +349,9 @@ els.configForm.addEventListener("submit", async (event) => {
             fb_api_key: facebookApiKey,
             fb_api_host: facebookApiHost,
             fb_endpoint_url: facebookEndpointUrl,
+            instagram_api_key: instagramApiKey,
+            instagram_api_host: instagramApiHost,
+            instagram_endpoint_url: instagramEndpointUrl,
         });
         setStatus(els.configStatus, "All platform settings saved.", "success");
     } catch (error) {
@@ -384,4 +417,9 @@ async function loadAll() {
     await Promise.all([loadConfig(), loadUpdate()]);
 }
 
-initFirebase();
+document.addEventListener("DOMContentLoaded", () => {
+    setupAccordions();
+    if (initFirebase()) {
+        loadAll();
+    }
+});
